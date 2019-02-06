@@ -83,7 +83,9 @@
 #include "io.h"
 #include <stdio.h>
 
-// #define GF_PERIPHERAL_0_BASE GF_PERIPHERAL_0_BASE
+// #define COMP_MULTIPLIER_0_BASE COMP_MULTIPLIER_0_BASE
+
+bool isBusy(void);
 
 int main()
 { 
@@ -95,26 +97,33 @@ int main()
   operand_a = 0xaaaa;
   operand_b = 0x8421;
 
-  IOWR(GF_PERIPHERAL_0_BASE, 1, operand_a);
-	alt_putstr("Hello from Nios II! from the other side \n");
-	printf("test..................");
-  //printf ("Writing [0x%lx] to operand A register.\n", operand_a);
+  	while(isBusy)
+		alt_putstr("component is busy");
 
-	//printf ("A = [0x%0x]\n", IORD (GF_PERIPHERAL_0_BASE, 1));
-	IOWR(GF_PERIPHERAL_0_BASE, 2, operand_b);
-	//printf ("B = [0x%0x]\n", IORD (GF_PERIPHERAL_0_BASE, 2));
-	temp = 0x01;
-	IOWR(GF_PERIPHERAL_0_BASE, 0, temp);
+  	IOWR(COMP_MULTIPLIER_0_BASE, 1, operand_a);
+	
+  	printf ("Writing [0x%lx] to operand A register.\n", operand_a);
+	printf ("A = [0x%0x]\n", IORD (COMP_MULTIPLIER_0_BASE, 1));
+	
+	IOWR(COMP_MULTIPLIER_0_BASE, 2, operand_b);
+	printf ("B = [0x%0x]\n", IORD (COMP_MULTIPLIER_0_BASE, 2));
+	
+	IOWR(COMP_MULTIPLIER_0_BASE, 0 , 0x01);			//writing 1 to control register to start processing 
+	alt_putstr("waiting for the operation to complete");
+	
+	while(isBusy)
+		alt_putstr("component is busy");
+
  	//printf ("Writing [0x%lx] to operand control register. to start the multiplication\n", temp);
-	for(temp = 1;temp < 10; temp ++){
-		alt_putstr("waiting for result");
-				for (i =1;i < temp ; i++)
-					alt_putstr(".");
-				alt_putstr("/n");
-	}
+//	for(temp = 1;temp < 10; temp ++){
+//		alt_putstr("waiting for result");
+//				for (i =1;i < temp ; i++)
+//					alt_putstr(".");
+//				alt_putstr("/n");
+//	}
 
-	result = IORD (GF_PERIPHERAL_0_BASE, 3);
-	temp = IORD (GF_PERIPHERAL_0_BASE, 0);
+	result = IORD (COMP_MULTIPLIER_0_BASE, 3);
+	temp = IORD (COMP_MULTIPLIER_0_BASE, 4);
 	result = (result << 32) | temp;
 
 	printf("result is  [0x%llx]",result);
@@ -123,3 +132,11 @@ int main()
 
   return 0;
 }
+
+bool isBusy(void){
+	unsigned long int status;
+	if (IORD(COMP_MULTIPLIER_0_BASE,0) == 0x03)
+		return true;
+	return false;
+}
+
