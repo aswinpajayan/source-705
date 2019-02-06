@@ -97,7 +97,7 @@ int main()
   operand_a = 0xaaaa;
   operand_b = 0x8421;
 
-  	while(isBusy)
+  	while(isBusy())
 		alt_putstr("component is busy");
 
   	IOWR(COMP_MULTIPLIER_0_BASE, 1, operand_a);
@@ -111,7 +111,7 @@ int main()
 	IOWR(COMP_MULTIPLIER_0_BASE, 0 , 0x01);			//writing 1 to control register to start processing 
 	alt_putstr("waiting for the operation to complete");
 	
-	while(isBusy)
+	while(isBusy())
 		alt_putstr("component is busy");
 
  	//printf ("Writing [0x%lx] to operand control register. to start the multiplication\n", temp);
