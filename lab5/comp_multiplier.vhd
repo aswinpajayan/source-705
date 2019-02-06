@@ -4,18 +4,18 @@ use ieee.std_logic_1164.all;
 --use ieee.numeric_std.all;
 use ieee.std_logic_arith.all;
 
-entity GF_peripheral is
+entity comp_multiplier is
    port (
       clk, reset    : in  std_logic;
-      address       : in  std_logic_vector (1 downto 0);
+      address       : in  std_logic_vector (2 downto 0);  --changed to three bit address to address 5 registers 
       read          : in  std_logic;
       readdata      : out std_logic_vector (31 downto 0);
       write         : in  std_logic;
       writedata     : in  std_logic_vector (31 downto 0)
    );
-end GF_peripheral;
+end comp_multiplier;
 
-architecture simple of GF_peripheral is
+architecture simple of comp_multiplier is
 
    signal control_and_status_reg : std_logic_vector (31 downto 0);
    signal operand_a              : std_logic_vector (31 downto 0);
@@ -36,10 +36,11 @@ begin
       if (rising_edge (clk)) then
 	      if (read = '1') then
           case address is
-            when "00" => out_data := result_value(31 downto 0);
-            when "01" => out_data := operand_a;
-            when "10" => out_data := operand_b;
-            when "11" => out_data := result_value(63 downto 32);
+            when "000" => out_data :=control_and_status_reg; 
+            when "001" => out_data := opearand_a;
+            when "010" => out_data := operand_b;
+            when "011" => out_data := result_value(31 downto 0);
+	    when "100" => out_data := result_value(63 downto 32);
             when others => null;
           end case;
           readdata <= out_data;
